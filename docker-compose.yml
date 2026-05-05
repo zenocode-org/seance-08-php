@@ -1,0 +1,45 @@
+# TP Séance 7+ — POO + MySQL (catalogue bibliothèque)
+# Démarrage : docker compose up -d --build
+# Site : http://localhost:8080/?id=1
+# phpMyAdmin : http://localhost:8081
+
+services:
+  web:
+    build: .
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_NAME: library
+      DB_USER: libuser
+      DB_PASS: libpass
+
+  db:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./db-data:/var/lib/mysql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: library
+      MYSQL_USER: libuser
+      MYSQL_PASSWORD: libpass
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: root
+      PMA_DATABASE: library
+    depends_on:
+      - db
